@@ -1154,3 +1154,19 @@ tbody tr:nth-child(even) {
     font-size: 0.9rem;
     color: #4b5563;
 }
+
+
+.site-header {
+    padding: 16px 40px;
+}
+
+.site-header__top,
+.site-header__search-account,
+.site-header__main-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.site-header__main-nav a {
+    margin-right: 16px;
+}

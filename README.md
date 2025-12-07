@@ -1,316 +1,138 @@
-# Vinny Ten Racing – PHP/MySQL Web App
+## 9. New Cart + Stripe Features (Abubakar)
 
-A small, production-style web application for Vinny Ten Racing built for **MAC272 – Web Development II**.
+This section explains the **new features I added** and how the rest of the team should use them.
 
-Repo: https://github.com/AbuBakarmarah/VinnyTenRacing
+### 9.1. What I added
 
----
+- A **shopping cart** system:
+  - `cart_add.php` – adds items to the session cart.
+  - `cart.php` – displays cart items, quantity, and totals.
+  - `cart_remove.php` – removes items from the cart.
+- A **Stripe Checkout** payment flow:
+  - `checkout.php` – shows order summary before payment.
+  - `create_checkout_session.php` – creates a Stripe Checkout Session and a new order in the `orders` table.
+  - `checkout_success.php` – marks order as paid and clears the cart.
+  - `checkout_cancel.php` – handles cancelled checkout.
+- **Stripe integration**:
+  - Installed `stripe/stripe-php` via Composer.
+  - `stripe_config.php` – sets Stripe test keys and configures the SDK.
+- **Orders pages**:
+  - `orders` table in `sql/vinnyten_racing_schema.sql`.
+  - `my_orders.php` – users can see their own orders.
+  - `admin_orders.php` – admin can see all orders and update status.
 
-## Quick Setup for Team Members
+### 9.2. How to run my part
 
-1. Clone into XAMPP `htdocs`:
+1. **Install dependencies (only once)**
 
    ```bash
-   cd /Applications/XAMPP/xamppfiles/htdocs
-   git clone https://github.com/AbuBakarmarah/VinnyTenRacing.git
-   cd VinnyTenRacing
+   cd /Applications/XAMPP/xamppfiles/htdocs/VinnyTenRacing
+   composer install
    ```
 
-2. Create database and import schema:
+2. **Import database**
 
-   ```sql
-   CREATE DATABASE vinnyten_racing
-     CHARACTER SET utf8mb4
-     COLLATE utf8mb4_unicode_ci;
-   ```
+   - In phpMyAdmin, create a database (for example: `vinnyten_racing`).
+   - Import `sql/vinnyten_racing_schema.sql`.
 
-   ```bash
-   mysql -u root vinnyten_racing < sql/vinnyten_racing_schema.sql
-   ```
+3. **Configure Stripe keys**
 
-   > If MySQL `root` has a password, use:
-   >
-   > ```bash
-   > mysql -u root -p vinnyten_racing < sql/vinnyten_racing_schema.sql
-   > ```
-   >
-   > Then update `config.php` with that password.
-
-3. Check `config.php` DB settings:
+   Open:
 
    ```php
-   $host = "localhost";
-   $user = "root";
-   $pass = "";                 // or your root password
-   $db   = "vinnyten_racing";
+   // filepath: /Applications/XAMPP/xamppfiles/htdocs/webdev2/lab2/stripe_config.php
    ```
+   ### Stripe keys (local only)
 
-4. Start Apache and MySQL in XAMPP, then open:
-
-   - `http://localhost/VinnyTenRacing/index.php`
-
-5. Admin login for testing:
-
-   - Username: `admin`
-   - Password: `Admin123!`
-
----
-
-## 1. Features
-
-### Public
-
-- Home page with hero slideshow, latest YouTube video, featured specials and packages.
-- Shop listing (`shop.php`) with:
-  - Sorting (newest, price asc/desc).
-  - Product cards (image, price, stock, description).
-- Product detail (`product.php`):
-  - Full description, price, stock, related packages.
-  - Add to Cart form.
-- Shopping cart (`cart.php`) stored in PHP session.
-- Performance Services (`services.php`):
-  - Dynamic services list from DB.
-  - Service booking form (requires login).
-- Contact / feedback (`contact.php`) stored in `contact_messages` table.
-- Global search (`search.php`) across products + services.
-
-### User account
-
-- Registration (`register.php`) with validation and password hashing.
-- Login / Logout (`login.php`, `logout.php`) using sessions.
-- Account page (`account.php`) with profile update + optional password change.
-- My bookings (`my_bookings.php`) – shows service bookings for logged-in user.
-
-### Admin
-
-Admin pages are protected by `$_SESSION['role'] === 'admin'`:
-
-- `admin_users.php` – view users, change role, delete (not yourself).
-- `admin_products.php` – full CRUD for products + safe image URL validation.
-- `admin_services.php` – manage services.
-- `admin_orders.php` – view orders and update status.
-- `admin_messages.php` – view and delete contact/feedback messages.
-
----
-
-## 2. Tech Stack
-
-- **Backend**: PHP 8 (XAMPP)
-- **Database**: MySQL / MariaDB (InnoDB, utf8mb4)
-- **Frontend**: HTML5, CSS (`global.css`, `home.css`), JS (`slideShow.js`, `youtubeAPICall.js`)
-- **Auth**: PHP sessions + `password_hash()` / `password_verify()`
-
----
-
-## 3. Project Structure
-
-```text
-VinnyTenRacing/
-  assets/                        # Images & ER diagram
-  sql/
-    vinnyten_racing_schema.sql   # DB schema + sample data (MySQL dump)
-
-  account.php
-  admin_messages.php
-  admin_orders.php
-  admin_products.php
-  admin_services.php
-  admin_users.php
-  cart.php
-  cart_add.php
-  cart_remove.php
-  config.php
-  contact.php
-  footer.php
-  global.css
-  header.php
-  home.css
-  index.php
-  login.php
-  logout.php
-  make_hash.php          # helper script to generate password hashes
-  my_bookings.php
-  product.php
-  README.md
-  register.php
-  search.php
-  services.php
-  shop.php
-  slideShow.js
-  youtubeAPICall.js
-```
-
----
-
-## 4. Getting Started (Local XAMPP)
-
-### 4.1. Requirements
-
-- XAMPP (Apache + MySQL + PHP) on macOS/Windows
-- MySQL Workbench or `mysql` CLI
-
-### 4.2. Clone the repo
+  Create a `.env` file or export environment variables before running:
 
 ```bash
-cd /Applications/XAMPP/xamppfiles/htdocs
-git clone https://github.com/AbuBakarmarah/VinnyTenRacing.git
-cd VinnyTenRacing
+export STRIPE_SECRET_KEY="sk_test_..."
+export STRIPE_PUBLIC_KEY="pk_test_..."
 ```
 
-### 4.3. Create database and import schema
+The app reads these in `stripe_config.php` and **no real keys are stored in Git**.
 
-1. Start **Apache** and **MySQL** in XAMPP.
-2. In MySQL (Workbench or CLI), run:
+   Make sure it has **test** keys:
 
-   ```sql
-   CREATE DATABASE vinnyten_racing
-     CHARACTER SET utf8mb4
-     COLLATE utf8mb4_unicode_ci;
+   ```php
+   // ...existing code...
+   $stripeSecretKey = 'sk_test_...'; // Stripe test secret key
+   $stripePublicKey = 'pk_test_...'; // Stripe test publishable key
+
+   \Stripe\Stripe::setApiKey($stripeSecretKey);
+   // ...existing code...
    ```
 
-3. Import the schema + sample data:
+4. **Start the project**
 
-   ```bash
-   mysql -u root vinnyten_racing < sql/vinnyten_racing_schema.sql
-   ```
+   - Start **Apache** and **MySQL** in XAMPP.
+   - Go to:
+     - `http://localhost/VinnyTenRacing/index.php`
+     - `http://localhost/VinnyTenRacing/shop.php`
 
-   > If your MySQL `root` has a password, use:  
-   > `mysql -u root -p vinnyten_racing < sql/vinnyten_racing_schema.sql`  
-   > and update `config.php` with that password.
+5. **Test the full flow**
 
-### 4.4. Configure `config.php`
+   - Register (`register.php`) and log in (`login.php`).
+   - Go to `shop.php`, click a product → `product.php`.
+   - Add the product to cart.
+   - Go to `cart.php`, then click **Checkout** → `checkout.php`.
+   - Click **Pay Securely with Card**.
+   - On the Stripe page, use this **test** card:
+     - Number: `4242 4242 4242 4242`
+     - Any future expiry date, any CVC, any ZIP.
+   - After paying, you will be redirected to `checkout_success.php` and the cart is cleared.
 
-Check the DB settings in `config.php`:
+### 9.3. Important code detail (for teammates)
+
+On the **product page**, the cart form sends the quantity using the field name `qty`:
 
 ```php
-$host = "localhost";
-$user = "root";
-$pass = "";                 // or your root password
-$db   = "vinnyten_racing";
+<form method="post" action="cart_add.php" class="add-to-cart-form">
+    <?php csrf_field(); ?>
+    <input type="hidden" name="product_id" value="<?php echo (int)$product['product_id']; ?>">
+    <label>
+        Qty:
+        <input
+            type="number"
+            name="qty"
+            value="1"
+            min="1"
+            max="<?php echo max(1, (int)$product['stock_qty']); ?>">
+    </label>
+    <button type="submit" class="btn-primary">Add to Cart</button>
+</form>
 ```
 
-If you changed DB name or password, update here.
-
-### 4.5. Run the site
-
-Open in the browser:
-
-- `http://localhost/VinnyTenRacing/index.php`
-
-Default logins (from the SQL dump):
-
-- **Admin**
-  - Username: `admin`
-  - Password: `Admin123!`
-- **User accounts**
-  - See the `users` table in the database for existing test users.
-
----
-
-## 5. Code Overview
-
-### 5.1. Layout
-
-- `header.php` – shared header, navigation, opens `<main>`.
-- `footer.php` – shared footer, closes `</main>`.
-- `global.css` – global layout, shop, product, admin styles.
-- `home.css` – home page–specific styles.
-
-### 5.2. Core PHP Pages
-
-- `index.php` – home page: slideshow, latest YouTube video, featured specials, packages.
-- `shop.php` – product catalog page with sorting.
-- `product.php` – product detail page with Add to Cart.
-- `cart_add.php`, `cart_remove.php`, `cart.php` – session-based cart.
-- `services.php` – services listing and booking form.
-- `my_bookings.php` – list of bookings for logged-in user.
-- `contact.php` – contact/feedback form → `contact_messages` table.
-
-### 5.3. Auth
-
-- `register.php` – new user registration, validation, `password_hash`.
-- `login.php` – login with `password_verify`, sets `$_SESSION`.
-- `logout.php` – clear session and redirect.
-- `account.php` – update profile and password.
-
-### 5.4. Admin Pages
-
-All admin pages require:
+`cart_add.php` expects this exact name:
 
 ```php
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    http_response_code(403);
-    echo "Access denied.";
-    exit;
+// filepath: /Applications/XAMPP/xamppfiles/htdocs/webdev2/lab2/cart_add.php
+// ...existing code...
+$productId = (int)($_POST['product_id'] ?? 0);
+$qty       = (int)($_POST['qty'] ?? 1);
+
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
 }
+
+$_SESSION['cart'][$productId] = ($_SESSION['cart'][$productId] ?? 0) + $qty;
+// ...existing code...
 ```
 
-Then they provide CRUD for:
+If you change the input name, you must also update `cart_add.php`.
 
-- Users (`admin_users.php`)
-- Products (`admin_products.php`)
-- Services (`admin_services.php`)
-- Orders (`admin_orders.php`)
-- Messages (`admin_messages.php`)
+### 9.4. Who did what
 
----
+- **Abubakar**
+  - Implemented cart pages (`cart_add.php`, `cart.php`, `cart_remove.php`).
+  - Implemented checkout flow (`checkout.php`, `create_checkout_session.php`, `checkout_success.php`, `checkout_cancel.php`, `stripe_config.php`).
+  - Added `orders` table, `my_orders.php`, and `admin_orders.php`.
+  - Set up Composer + `stripe/stripe-php` and wrote this documentation.
 
-## 6. Database Design (High Level)
+- **Belle**
+  - Built the original VinnyTen Racing front-end (home, shop, services, etc.).
+  - Helped design UX and content.
+  - Helped test the cart and checkout flow.
 
-See the ER diagram in `assets/Database ER diagram (crow's foot).png` and the full DDL in `sql/vinnyten_racing_schema.sql`.
-
-Main tables:
-
-- `users(user_id, first_name, last_name, email, username, password_hash, phone_number, role, created_at)`
-- `categories(category_id, category_name)`
-- `products(product_id, category_id, product_name, description, price, stock_qty, image_url, created_at)`
-- `orders(order_id, user_id, total_amount, status, created_at)`
-- `service_bookings(booking_id, user_id, service_id, preferred_date, status, notes, created_at)`
-- `services(id, name, description, price, duration, created_at)`
-- `contact_messages(message_id, user_id, name, email, subject, message, created_at)`
-
-Foreign keys enforce relationships between users, products, services, and bookings.
-
----
-
-## 7. Workflow for Team Members
-
-1. **Pull latest changes**:
-
-   ```bash
-   git pull origin main
-   ```
-
-2. **Make changes** in a new branch:
-
-   ```bash
-   git checkout -b feature/some-change
-   # edit files in VS Code
-   git add .
-   git commit -m "Describe your change"
-   git push -u origin feature/some-change
-   ```
-
-3. Open a **Pull Request** on GitHub for review.
-
-4. If DB structure changes:
-   - Update the DB locally.
-   - Export updated schema/data to `sql/vinnyten_racing_schema.sql`.
-   - Commit that file with a clear message:
-     - `"Update DB schema: add X table"`.
-
----
-
-## 8. Troubleshooting
-
-- **Blank page / 500 error**  
-  Check Apache/PHP error log (XAMPP) and make sure `config.php` has correct DB credentials.
-
-- **Cannot connect to database**  
-  Confirm:
-  - MySQL is running in XAMPP.
-  - DB `vinnyten_racing` exists.
-  - `sql/vinnyten_racing_schema.sql` was imported successfully.
-
-- **Login not working**  
-  Use the default admin from the dump (`admin` / `Admin123!`). If changed, reset password directly in DB or via `make_hash.php`.
+This section explains **exactly** what changed so that the whole team can run, test, and present the new cart + Stripe features.

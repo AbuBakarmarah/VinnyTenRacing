@@ -35,7 +35,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($name === "" || $price === "" || !is_numeric($price)) {
         $msg = "Name and numeric price are required.";
     } else {
-        // cast numeric values
         $price = (float)$price;
 
         if (!is_numeric($stock)) {
@@ -46,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stock = 0;
         }
 
-        // validate image URL if provided
         if ($image !== '' &&
             !preg_match('~^https?://.+\.(jpe?g|png|webp|gif)$~i', $image)) {
             $msg = "Image URL must be a valid http(s) URL to a JPG/PNG/WebP/GIF image.";
@@ -124,87 +122,124 @@ $list = mysqli_query(
 include __DIR__ . '/header.php';
 ?>
 
-<div class="main-content">
-    <h1>Admin: Products</h1>
-    <p>
-        <a href="admin_users.php">Users</a> |
-        <a href="admin_services.php">Services</a> |
-        <a href="admin_orders.php">Orders</a> |
+<div class="main-content" style="padding:24px;">
+    <h1 style="margin-bottom:10px;">Admin: Products</h1>
+
+    <nav class="admin-nav" style="margin-bottom:20px;">
+        <a href="admin_users.php">Users</a>
+        <a href="admin_products.php">Products</a>
+        <a href="admin_orders.php">Orders</a>
         <a href="admin_messages.php">Messages</a>
-    </p>
+        <a href="admin_services.php">Services</a>
+    </nav>
 
     <?php if ($msg): ?>
-        <p style="color:green;"><?php echo htmlspecialchars($msg); ?></p>
+        <div style="margin-bottom:16px;padding:10px 14px;border-radius:6px;
+                    background:#e0f2fe;color:#075985;border:1px solid #7dd3fc;">
+            <?php echo htmlspecialchars($msg); ?>
+        </div>
     <?php endif; ?>
 
-    <h2>Existing Products</h2>
-    <table border="1" cellpadding="4" style="border-collapse:collapse; width:100%;">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Image</th>
-            <th>Created</th>
-            <th>Actions</th>
-        </tr>
-        <?php while ($p = mysqli_fetch_assoc($list)): ?>
-            <tr>
-                <td><?php echo (int)$p['product_id']; ?></td>
-                <td><?php echo htmlspecialchars($p['product_name']); ?></td>
-                <td>$<?php echo number_format((float)$p['price'], 2); ?></td>
-                <td><?php echo (int)$p['stock_qty']; ?></td>
-                <td>
-                    <?php if (!empty($p['image_url'])): ?>
-                        <img src="<?php echo htmlspecialchars($p['image_url']); ?>" alt=""
-                             style="max-width:80px; max-height:80px;">
-                    <?php endif; ?>
-                </td>
-                <td><?php echo htmlspecialchars($p['created_at']); ?></td>
-                <td>
-                    <a href="admin_products.php?edit=<?php echo (int)$p['product_id']; ?>">Edit</a> |
-                    <a href="admin_products.php?delete=<?php echo (int)$p['product_id']; ?>"
-                       onclick="return confirm('Delete this product?');">Delete</a>
-                </td>
-            </tr>
-        <?php endwhile; ?>
-    </table>
+    <div style="background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(15,23,42,0.1);padding:16px;margin-bottom:24px;">
+        <h2 style="margin-top:0;margin-bottom:12px;">Existing Products</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+            <thead>
+                <tr style="background:#013783;color:#fff;">
+                    <th style="padding:8px 10px;text-align:left;">ID</th>
+                    <th style="padding:8px 10px;text-align:left;">Name</th>
+                    <th style="padding:8px 10px;text-align:left;">Price</th>
+                    <th style="padding:8px 10px;text-align:left;">Stock</th>
+                    <th style="padding:8px 10px;text-align:left;">Image</th>
+                    <th style="padding:8px 10px;text-align:left;">Created</th>
+                    <th style="padding:8px 10px;text-align:left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php while ($p = mysqli_fetch_assoc($list)): ?>
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                    <td style="padding:8px 10px;"><?php echo (int)$p['product_id']; ?></td>
+                    <td style="padding:8px 10px;"><?php echo htmlspecialchars($p['product_name']); ?></td>
+                    <td style="padding:8px 10px;">$<?php echo number_format((float)$p['price'], 2); ?></td>
+                    <td style="padding:8px 10px;"><?php echo (int)$p['stock_qty']; ?></td>
+                    <td style="padding:8px 10px;">
+                        <?php if (!empty($p['image_url'])): ?>
+                            <img src="<?php echo htmlspecialchars($p['image_url']); ?>" alt=""
+                                 style="max-width:80px; max-height:80px;border-radius:4px;">
+                        <?php endif; ?>
+                    </td>
+                    <td style="padding:8px 10px;"><?php echo htmlspecialchars($p['created_at']); ?></td>
+                    <td style="padding:8px 10px;">
+                        <a href="admin_products.php?edit=<?php echo (int)$p['product_id']; ?>">Edit</a>
+                        |
+                        <a href="admin_products.php?delete=<?php echo (int)$p['product_id']; ?>"
+                           onclick="return confirm('Delete this product?');"
+                           style="color:#b91c1c;">Delete</a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
 
-    <h2><?php echo $edit ? "Edit Product #".(int)$edit['product_id'] : "Add New Product"; ?></h2>
-    <form method="post" action="">
-        <?php if ($edit): ?>
-            <input type="hidden" name="product_id"
-                   value="<?php echo (int)$edit['product_id']; ?>">
-        <?php endif; ?>
+    <div style="background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(15,23,42,0.1);padding:16px;">
+        <h2 style="margin-top:0;margin-bottom:12px;">
+            <?php echo $edit ? "Edit Product #".(int)$edit['product_id'] : "Add New Product"; ?>
+        </h2>
 
-        <p><label>Product Name:
-           <input type="text" name="product_name" required
-                  value="<?php echo htmlspecialchars($edit['product_name'] ?? ''); ?>">
-        </label></p>
+        <form method="post" action="" style="max-width:600px;">
+            <?php if ($edit): ?>
+                <input type="hidden" name="product_id"
+                       value="<?php echo (int)$edit['product_id']; ?>">
+            <?php endif; ?>
 
-        <p><label>Description:<br>
-           <textarea name="description" rows="4" cols="50"><?php
-             echo htmlspecialchars($edit['description'] ?? '');
-           ?></textarea>
-        </label></p>
+            <p>
+                <label>Product Name:<br>
+                    <input type="text" name="product_name" required
+                           value="<?php echo htmlspecialchars($edit['product_name'] ?? ''); ?>"
+                           style="width:100%;padding:6px;border-radius:4px;border:1px solid #d1d5db;">
+                </label>
+            </p>
 
-        <p><label>Price ($):
-           <input type="number" step="0.01" name="price" required
-                  value="<?php echo htmlspecialchars($edit['price'] ?? ''); ?>">
-        </label></p>
+            <p>
+                <label>Description:<br>
+                    <textarea name="description" rows="4" cols="50"
+                              style="width:100%;padding:6px;border-radius:4px;border:1px solid #d1d5db;"><?php
+                        echo htmlspecialchars($edit['description'] ?? '');
+                    ?></textarea>
+                </label>
+            </p>
 
-        <p><label>Stock Quantity:
-           <input type="number" name="stock_qty"
-                  value="<?php echo htmlspecialchars($edit['stock_qty'] ?? '0'); ?>">
-        </label></p>
+            <p>
+                <label>Price ($):<br>
+                    <input type="number" step="0.01" name="price" required
+                           value="<?php echo htmlspecialchars($edit['price'] ?? ''); ?>"
+                           style="width:100%;padding:6px;border-radius:4px;border:1px solid #d1d5db;">
+                </label>
+            </p>
 
-        <p><label>Image URL:
-           <input type="text" name="image_url"
-                  value="<?php echo htmlspecialchars($edit['image_url'] ?? ''); ?>">
-        </label></p>
+            <p>
+                <label>Stock Quantity:<br>
+                    <input type="number" name="stock_qty"
+                           value="<?php echo htmlspecialchars($edit['stock_qty'] ?? '0'); ?>"
+                           style="width:100%;padding:6px;border-radius:4px;border:1px solid #d1d5db;">
+                </label>
+            </p>
 
-        <button type="submit"><?php echo $edit ? "Update Product" : "Add Product"; ?></button>
-    </form>
+            <p>
+                <label>Image URL:<br>
+                    <input type="text" name="image_url"
+                           value="<?php echo htmlspecialchars($edit['image_url'] ?? ''); ?>"
+                           style="width:100%;padding:6px;border-radius:4px;border:1px solid #d1d5db;">
+                </label>
+            </p>
+
+            <button type="submit"
+                    style="background:#013783;color:#fff;border:none;border-radius:4px;
+                           padding:8px 16px;cursor:pointer;">
+                <?php echo $edit ? "Update Product" : "Add Product"; ?>
+            </button>
+        </form>
+    </div>
 </div>
 
 <?php include __DIR__ . '/footer.php'; ?>

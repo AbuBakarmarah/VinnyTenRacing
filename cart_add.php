@@ -1,7 +1,8 @@
 <?php
 require __DIR__ . '/config.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_verify()) {
+    http_response_code(400);
     header("Location: shop.php");
     exit;
 }
@@ -19,13 +20,13 @@ if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Add/update
+// Add / update quantity
 if (!isset($_SESSION['cart'][$productId])) {
     $_SESSION['cart'][$productId] = 0;
 }
 $_SESSION['cart'][$productId] += $qty;
 
-// Optional: limit quantity
+// Optionally cap at 10
 if ($_SESSION['cart'][$productId] > 10) {
     $_SESSION['cart'][$productId] = 10;
 }

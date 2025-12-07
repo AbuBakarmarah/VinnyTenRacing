@@ -36,51 +36,68 @@ $res = mysqli_query($conn, $sql);
 include __DIR__ . '/header.php';
 ?>
 
-<div class="main-content">
-    <h1>Admin: Orders</h1>
-    <p>
-        <a href="admin_users.php">Users</a> |
-        <a href="admin_products.php">Products</a> |
+<div class="main-content" style="padding:24px;">
+    <h1 style="margin-bottom:10px;">Admin: Orders</h1>
+
+    <nav class="admin-nav" style="margin-bottom:20px;">
+        <a href="admin_users.php">Users</a>
+        <a href="admin_products.php">Products</a>
+        <a href="admin_orders.php">Orders</a>
+        <a href="admin_messages.php">Messages</a>
         <a href="admin_services.php">Services</a>
-    </p>
+    </nav>
 
     <?php if ($msg): ?>
-        <p style="color:green;"><?php echo htmlspecialchars($msg); ?></p>
+        <div style="margin-bottom:16px;padding:10px 14px;border-radius:6px;
+                    background:#e0f2fe;color:#075985;border:1px solid #7dd3fc;">
+            <?php echo htmlspecialchars($msg); ?>
+        </div>
     <?php endif; ?>
 
-    <table border="1" cellpadding="4" style="border-collapse:collapse; width:100%;">
-        <tr>
-            <th>Order ID</th>
-            <th>User</th>
-            <th>Email</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Update Status</th>
-        </tr>
-        <?php while ($o = mysqli_fetch_assoc($res)): ?>
-            <tr>
-                <td><?php echo $o['order_id']; ?></td>
-                <td><?php echo htmlspecialchars($o['username']); ?></td>
-                <td><?php echo htmlspecialchars($o['email']); ?></td>
-                <td>$<?php echo number_format($o['total_amount'], 2); ?></td>
-                <td><?php echo htmlspecialchars($o['status']); ?></td>
-                <td><?php echo htmlspecialchars($o['created_at']); ?></td>
-                <td>
-                    <form method="post" action="" style="display:inline;">
-                        <input type="hidden" name="order_id" value="<?php echo $o['order_id']; ?>">
-                        <select name="status">
-                            <option value="pending"    <?php if ($o['status']==='pending')    echo 'selected'; ?>>pending</option>
-                            <option value="processing" <?php if ($o['status']==='processing') echo 'selected'; ?>>processing</option>
-                            <option value="completed"  <?php if ($o['status']==='completed')  echo 'selected'; ?>>completed</option>
-                            <option value="cancelled"  <?php if ($o['status']==='cancelled')  echo 'selected'; ?>>cancelled</option>
-                        </select>
-                        <button type="submit">Save</button>
-                    </form>
-                </td>
-            </tr>
-        <?php endwhile; ?>
-    </table>
+    <div style="background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(15,23,42,0.1);padding:16px;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+            <thead>
+                <tr style="background:#013783;color:#fff;">
+                    <th style="padding:8px 10px;text-align:left;">Order ID</th>
+                    <th style="padding:8px 10px;text-align:left;">User</th>
+                    <th style="padding:8px 10px;text-align:left;">Email</th>
+                    <th style="padding:8px 10px;text-align:left;">Total</th>
+                    <th style="padding:8px 10px;text-align:left;">Status</th>
+                    <th style="padding:8px 10px;text-align:left;">Created</th>
+                    <th style="padding:8px 10px;text-align:left;">Update Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php while ($o = mysqli_fetch_assoc($res)): ?>
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                    <td style="padding:8px 10px;"><?php echo $o['order_id']; ?></td>
+                    <td style="padding:8px 10px;"><?php echo htmlspecialchars($o['username']); ?></td>
+                    <td style="padding:8px 10px;"><?php echo htmlspecialchars($o['email']); ?></td>
+                    <td style="padding:8px 10px;">$<?php echo number_format($o['total_amount'], 2); ?></td>
+                    <td style="padding:8px 10px;"><?php echo htmlspecialchars($o['status']); ?></td>
+                    <td style="padding:8px 10px;"><?php echo htmlspecialchars($o['created_at']); ?></td>
+                    <td style="padding:8px 10px;">
+                        <form method="post" action="" style="display:inline-flex;gap:4px;align-items:center;margin:0;">
+                            <input type="hidden" name="order_id" value="<?php echo $o['order_id']; ?>">
+                            <select name="status"
+                                    style="padding:3px 6px;border-radius:4px;border:1px solid #d1d5db;">
+                                <option value="pending"    <?php if ($o['status']==='pending')    echo 'selected'; ?>>pending</option>
+                                <option value="processing" <?php if ($o['status']==='processing') echo 'selected'; ?>>processing</option>
+                                <option value="completed"  <?php if ($o['status']==='completed')  echo 'selected'; ?>>completed</option>
+                                <option value="cancelled"  <?php if ($o['status']==='cancelled')  echo 'selected'; ?>>cancelled</option>
+                            </select>
+                            <button type="submit"
+                                    style="padding:4px 8px;border:none;border-radius:4px;
+                                           background:#013783;color:#fff;cursor:pointer;">
+                                Save
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <?php include __DIR__ . '/footer.php'; ?>

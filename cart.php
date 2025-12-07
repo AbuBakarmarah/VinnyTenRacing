@@ -19,12 +19,14 @@ if (!empty($cart)) {
     while ($row = mysqli_fetch_assoc($res)) {
         $pid = (int)$row['product_id'];
         $qty = (int)($cart[$pid] ?? 0);
-        if ($qty <= 0) continue;
+        if ($qty <= 0) {
+            continue;
+        }
 
-        $row['qty'] = $qty;
+        $row['qty']        = $qty;
         $row['line_total'] = $qty * (float)$row['price'];
-        $total += $row['line_total'];
-        $productRows[] = $row;
+        $total            += $row['line_total'];
+        $productRows[]     = $row;
     }
 }
 
@@ -74,9 +76,16 @@ include __DIR__ . '/header.php';
                                     $<?php echo number_format((float)$item['line_total'], 2); ?>
                                 </td>
                                 <td style="text-align:right;">
-                                    <a href="cart_remove.php?id=<?php echo (int)$item['product_id']; ?>">
-                                        Remove
-                                    </a>
+                                    <form method="post"
+                                          action="cart_remove.php"
+                                          style="display:inline;">
+                                        <?php csrf_field(); ?>
+                                        <input type="hidden" name="id"
+                                               value="<?php echo (int)$item['product_id']; ?>">
+                                        <button type="submit" class="link-button">
+                                            Remove
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

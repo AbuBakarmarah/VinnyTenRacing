@@ -1,5 +1,6 @@
 <?php
-require __DIR__ . '/config.php';
+
+require_once __DIR__ . '/header.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
@@ -8,7 +9,7 @@ if ($id <= 0) {
     exit;
 }
 
-// Fetch this product
+// Fetch main product
 $stmt = mysqli_prepare(
     $conn,
     "SELECT product_id, product_name, description, price, stock_qty, image_url, created_at
@@ -29,7 +30,7 @@ if (!$result || mysqli_num_rows($result) === 0) {
 $product = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
-// Fetch a few "related" products (simple: just other latest products)
+// Related products
 $related = mysqli_query(
     $conn,
     "SELECT product_id, product_name, price, image_url
@@ -38,8 +39,6 @@ $related = mysqli_query(
      ORDER BY created_at DESC
      LIMIT 3"
 );
-
-include __DIR__ . '/header.php';
 ?>
 
 <div class="main-content">
@@ -101,11 +100,17 @@ include __DIR__ . '/header.php';
 
                         <div class="product-detail-actions">
                             <form method="post" action="cart_add.php" class="add-to-cart-form">
+                                <?php csrf_field(); ?>
                                 <input type="hidden" name="product_id"
                                        value="<?php echo (int)$product['product_id']; ?>">
                                 <label>
                                     Qty:
-                                    <input type="number" name="qty" value="1" min="1" max="10">
+                                    <input
+                                        type="number"
+                                        name="qty"
+                                        value="1"
+                                        min="1"
+                                        max="<?php echo max(1, (int)$product['stock_qty']); ?>">
                                 </label>
                                 <button type="submit" class="btn-primary">
                                     Add to Cart
